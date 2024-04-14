@@ -1,0 +1,51 @@
+version: "3.7"
+services:
+  server:
+    build: .
+    container_name: server
+    hostname: server
+    env_file:
+      - ./.env
+    restart: always
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    depends_on:
+      - db
+      - cache
+    networks:
+      webservices:
+  db:
+    image: postgres
+    container_name: db
+    hostname: db
+    env_file:
+      - ./.env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - ./.data:/var/lib/postgresql/.data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      webservices:
+  cache:
+    image: redis
+    container_name: redis
+    hostname: redis
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    networks:
+      webservices:
+
+volumes:
+  db:
+
+networks:
+  webservices:
+    external: true
