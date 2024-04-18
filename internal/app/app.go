@@ -2,8 +2,10 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
 	"project/internal/app/controllers/bannercontroller"
 	"project/internal/app/controllers/middleware/authmiddleware"
 	"project/internal/app/infrastructure/cache"
@@ -20,8 +22,9 @@ type app struct {
 
 func New() *app {
 	l := logger.New()
+	port := os.Getenv("SERVER_PORT")
 	srv := &http.Server{
-		Addr: ":8080",
+		Addr: fmt.Sprintf(":%s", port),
 	}
 	return &app{
 		log:    l,

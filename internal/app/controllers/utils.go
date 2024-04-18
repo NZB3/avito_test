@@ -14,13 +14,14 @@ func ConvToBool(param string) (bool, error) {
 	return strconv.ParseBool(param)
 }
 
-func ParseQueryParam[T any](params gin.Params, name string, required bool, convFunc func(param string) (T, error)) (convertedParam T, err error) {
-	param := params.ByName(name)
+func ParseQueryParam[T any](queryContext *gin.Context, name string, required bool, defaultVal T, convFunc func(param string) (T, error)) (convertedParam T, err error) {
+	param := queryContext.Query(name)
 	if param == "" {
 		if required {
 			return convertedParam, errors.New(name + " is required")
 		}
 
+		convertedParam = defaultVal
 		return convertedParam, nil
 	}
 
@@ -30,4 +31,13 @@ func ParseQueryParam[T any](params gin.Params, name string, required bool, convF
 	}
 
 	return convertedParam, nil
+}
+
+func CheckAdminStatus(ctx *gin.Context) (isAdmin bool, err error) {
+	admin, ok := ctx.Get("admin")
+	if !ok {
+		return false, errors.New("'admin' is not specified in context")
+	}
+
+	return admin.(bool), nil
 }

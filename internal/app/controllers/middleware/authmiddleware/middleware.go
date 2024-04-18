@@ -52,15 +52,13 @@ func (m *middleware) Auth() gin.HandlerFunc {
 func (m *middleware) AdminRequired() gin.HandlerFunc {
 	const op = "middleware.AdminRequired"
 	return func(ctx *gin.Context) {
-		admin, ok := ctx.Get("admin")
-		if !ok {
-			m.log.Errorf("%s 'admin' required in context", op)
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": Unauthorized})
+		admin, err := controllers.CheckAdminStatus(ctx)
+		if err != nil {
+			m.log.Errorf("%s Failed to check admin status: %v", op, err)
 			ctx.Abort()
-			return
 		}
 
-		if !admin.(bool) {
+		if !admin {
 			ctx.JSON(http.StatusForbidden, gin.H{"error": Forbidden})
 			ctx.Abort()
 			return

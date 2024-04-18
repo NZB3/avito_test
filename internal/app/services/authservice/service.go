@@ -14,8 +14,7 @@ type authService struct {
 }
 
 type claims struct {
-	Admin  bool `json:"admin,omitempty"`
-	UserID int  `json:"user_id"`
+	Admin bool `json:"admin,omitempty"`
 	jwt.StandardClaims
 }
 

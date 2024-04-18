@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"github.com/redis/go-redis/v9"
 	"project/internal/app/models"
 	"project/internal/logger"
@@ -33,7 +34,7 @@ func New(logger logger.Logger) (*cache, error) {
 	}, nil
 }
 
-func (c *cache) SetBanner(ctx context.Context, tagID int, featureID int, banner *models.Banner) error {
+func (c *cache) SetBanner(ctx context.Context, tagID int, featureID int, banner models.Banner) error {
 	const op = "cache.SetBanner"
 	h := hash(tagID, featureID)
 	err := c.conn.Set(ctx, h, banner, time.Minute*5).Err()
@@ -45,7 +46,7 @@ func (c *cache) SetBanner(ctx context.Context, tagID int, featureID int, banner 
 	return nil
 }
 
-func (c *cache) GetBanner(ctx context.Context, tagID int, featureID int) (*models.Banner, error) {
+func (c *cache) GetBanner(ctx context.Context, tagID int, featureID int) (models.Banner, error) {
 	const op = "cache.GetBanner"
 
 	h := hash(tagID, featureID)
@@ -53,11 +54,15 @@ func (c *cache) GetBanner(ctx context.Context, tagID int, featureID int) (*model
 	var banner models.Banner
 	err := c.conn.Get(ctx, h).Scan(&banner)
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return banner, models.BannerNotFound
+		}
+
 		c.log.Errorf("%s Failed to get banner from cache: %s", op, err)
-		return nil, err
+		return banner, err
 	}
 
-	return &banner, nil
+	return banner, nil
 }
 
 func hash(args ...int) string {

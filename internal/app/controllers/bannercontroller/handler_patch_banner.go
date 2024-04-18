@@ -13,16 +13,16 @@ type bannerUpdater interface {
 }
 
 type patchBannerRequest struct {
-	FeatureID int    `json:"feature_id,omitempty"`
-	TagIDs    []int  `json:"tag_ids,omitempty"`
-	Content   []byte `json:"content,omitempty"`
-	IsActive  bool   `json:"is_active,omitempty"`
+	FeatureID int            `json:"feature_id,omitempty"`
+	TagIDs    []int          `json:"tag_ids,omitempty"`
+	Content   map[string]any `json:"content,omitempty"`
+	IsActive  bool           `json:"is_active,omitempty"`
 }
 
 func (c *controller) PatchHandler() gin.HandlerFunc {
 	const op = "bannercontroller.PatchBannerHandler"
 	return func(ctx *gin.Context) {
-		id, err := controllers.ParseQueryParam(ctx.Params, "id", true, controllers.ConvToInt)
+		id, err := controllers.ParseQueryParam(ctx, "id", true, 0, controllers.ConvToInt)
 		if err != nil {
 			c.log.Errorf("%s : Failed to parse id: %s", op, err)
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": controllers.BadRequest})

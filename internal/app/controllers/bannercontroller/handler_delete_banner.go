@@ -14,7 +14,7 @@ type bannerDeleter interface {
 func (c *controller) DeleteHandler() gin.HandlerFunc {
 	const op = "bannercontroller.DeleteBannerHandler"
 	return func(ctx *gin.Context) {
-		id, err := controllers.ParseQueryParam(ctx.Params, "id", true, controllers.ConvToInt)
+		id, err := controllers.ParseQueryParam(ctx, "id", true, -1, controllers.ConvToInt)
 		if err != nil {
 			c.log.Errorf("%s: Failed to parse param: %v", op, err)
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": controllers.BadRequest})

@@ -13,10 +13,10 @@ type bannerSaver interface {
 }
 
 type postBannerRequest struct {
-	FeatureID int    `json:"feature_id"`
-	TagIDs    []int  `json:"tag_ids"`
-	Content   []byte `json:"content"`
-	IsActive  bool   `json:"is_active"`
+	FeatureID int            `json:"feature_id"`
+	TagIDs    []int          `json:"tag_ids"`
+	Content   map[string]any `json:"content"`
+	IsActive  bool           `json:"is_active"`
 }
 
 func (c *controller) PostHandler() gin.HandlerFunc {
